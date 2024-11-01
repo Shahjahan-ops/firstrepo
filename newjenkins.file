@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+
+    environment {
+        GIT_REPO = 'https://github.com/your-repo/your-project.git'
+        DOCKER_IMAGE = 'your-docker-image-name:latest'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                // Checkout code from GitHub
+                git branch: 'main', url: "${env.GIT_REPO}"
+            }
+        }
+
+        stage('Build and Test with Maven') {
+            steps {
+                dir('your-project-directory') { // Directory containing the pom.xml file
+                    sh 'mvn clean install'
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                dir('your-project-directory') { // Directory containing the Dockerfile
+                    sh "docker build -t ${DOCKER_IMAGE} ."
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed.'
+        }
+    }
+}
